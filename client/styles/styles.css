@@ -86,3 +86,7 @@ form input[type=text] {
 .username {
     color: blue;
 }
+
+.messageRoomName {
+    display: none;
+}

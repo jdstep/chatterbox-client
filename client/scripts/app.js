@@ -5,7 +5,7 @@ var app = {};
 var mostRecentMessageTime = new Date("0");
 
 app.init = function() {
-
+  this.currentRoom = "All Rooms";
 };
 
 var awesomeBackground = '<script="text/javascript">$("body").css("background-image", "url("http://i.imgur.com/H96T1n8.jpg")")</script>';
@@ -58,15 +58,24 @@ app.prependNewMessages = function(data) {
     if (app.xssAttackPresent(msg)) {
       // console.log(msg);
     // otherwise as long as the message hasn't been added to the list of messages yet
-    } else if (new Date(msg.createdAt) > mostRecentMessageTime) {
+    } else if (new Date(msg.createdAt) > mostRecentMessageTime &&
+              app.checkRoom(msg.roomname)) {
       // prepend the message
       app.addMessage(msg);
-      app.addRoom(msg.roomname);
     }
   });
   // set the most recent message time to the most recent message received.
   mostRecentMessageTime = new Date(data.results[0].createdAt);
 };
+
+app.checkRoom = function(messageRoom) {
+  if (app.currentRoom === "All Rooms" ||
+      app.currentRoom === messageRoom) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 // Runs a series of regex tests on each value of the message
 // returns true if the message contains malicious codez
@@ -94,12 +103,16 @@ app.regExTests = function(string) {
 
 // prepends a message to the DOM
 app.addMessage = function(message) {
+  // debugger;
   $("#chats").prepend('<div class="message">'+
                       '<span class="username">' +
                       message.username +
                       '</span>' +
                       ' <span class="messages">' +
                       message.text +
+                      '</span>' +
+                      '<span class="messageRoomName">' +
+                      message.roomname +
                       '</span>' +
                       '</div>');
 };
@@ -110,6 +123,7 @@ app.addRoom = function(roomname) {
     return $(this).text() === roomname;
   });
   if(existingRooms.length===0 && roomname !== undefined){
+    // debugger;
     $("#roomSelect").append('<option class="rooms">' + roomname + '</option>');
   }
 };
@@ -125,10 +139,14 @@ app.addFriend = function(friend) {
 app.handleSubmit = function() {
   var username = $('#username').val();
   var text = $('#message').val();
-  var roomname = 'Your Nightmare';
-  var message = {username: username, text: text, roomname: roomname};
+  //var roomname = 'Your Nightmare';
+  var message = {username: username, text: text, roomname: app.currentRoom};
   app.send(message);
 };
+
+app.filterRooms = function(){
+  _.reject($(".messages"  ))
+}
 
 // listens for a click event on usernames
 // event calls addFriend method
@@ -176,9 +194,13 @@ var readyMakeNewRoom = function(){
   })
 }
 
+
 var readyEnterRoom = function(){
   $('#roomSelect').on("change", function(event){
-
+    app.filterRooms();
+    // debugger;
+    app.currentRoom = this.value;
+    app.fetch();
   });
 }
 // initializing all event listeners
@@ -196,3 +218,6 @@ $(document).ready(function() {
 
 
 //<script>$("body").css("background-image", "url('http://i.imgur.com/H96T1n8.jpg')")</script>
+// when going from room to room , the old messages are not shown
+// because we clear them, and only get new ones.
+// we should toggle isntead.
