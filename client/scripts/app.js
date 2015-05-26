@@ -4,6 +4,8 @@ var app = {};
 
 var mostRecentMessageTime = new Date("0");
 
+var friendsList = [];
+
 app.init = function() {
   this.currentRoom = "All Rooms";
 };
@@ -75,7 +77,7 @@ app.checkRoom = function(messageRoom) {
   } else {
     return false;
   }
-}
+};
 
 // Runs a series of regex tests on each value of the message
 // returns true if the message contains malicious codez
@@ -115,6 +117,19 @@ app.addMessage = function(message) {
                       message.roomname +
                       '</span>' +
                       '</div>');
+
+
+};
+
+
+app.addFriendClass = function() {
+  var allFriends = $('.username').filter(function() {
+    return _.contains(friendsList, $(this).text());
+  });
+
+  allFriends.addClass('friend');
+
+  console.log(allFriends);
 };
 
 // adds a room to the select field
@@ -130,7 +145,8 @@ app.addRoom = function(roomname) {
 
 // adds a friend when you get one
 app.addFriend = function(friend) {
-
+  console.log(friend);
+  friendsList.push(friend);
 };
 
 // retrieves input values for username, text, and roomname
@@ -146,14 +162,16 @@ app.handleSubmit = function() {
 
 app.filterRooms = function(){
   _.reject($(".messages"  ))
-}
+};
 
 // listens for a click event on usernames
 // event calls addFriend method
 var readyUsernameOnClick = function() {
   $("#chats").on('click', ".username", function(friend) {
-  app.addFriend(friend);
-})};
+  app.addFriend($(this).text());
+  app.addFriendClass();
+  });
+};
 
 // listens for a click event on the submit button
 // event triggers submit event
@@ -185,14 +203,14 @@ var readyRetrieveUsername = function(){
    var queriedUsername = window.location.search;
    var name = usernameReg.exec(queriedUsername)[1];
    $("#username").val(name);
-}
+};
 
 var readyMakeNewRoom = function(){
   $("#newRoomButton").on('click', function(){
     app.addRoom($('#newRoomText').val());
     $('#newRoomText').val("");
   })
-}
+};
 
 
 var readyEnterRoom = function(){
@@ -202,7 +220,8 @@ var readyEnterRoom = function(){
     app.currentRoom = this.value;
     app.fetch();
   });
-}
+};
+
 // initializing all event listeners
 // and does an initial fetch for messages
 $(document).ready(function() {

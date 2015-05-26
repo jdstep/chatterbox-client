@@ -90,3 +90,8 @@ form input[type=text] {
 .messageRoomName {
     display: none;
 }
+
+.friend {
+    font-weight: bold;
+    color: purple;
+};
