@@ -4,11 +4,10 @@
     <meta charset="utf-8">
     <title>chatterbox</title>
     <link rel="stylesheet" href="styles/styles.css">
-
     <!-- dependencies -->
     <script src="bower_components/jquery/jquery.min.js"></script>
     <script src="bower_components/underscore/underscore-min.js"></script>
-    <!-- your scripts -->
+    <script src="scripts/regex.js"></script>
     <script src="env/config.js"></script>
     <script src="scripts/app.js"></script>
   </head>
@@ -17,16 +16,16 @@
       <h1>chatterbox</h1>
       <select id="roomSelect">
       </select>
-      <button class="retrieve">Gotify
-      </button>
-      <div id="chats">
-      </div>
       <form id="send">
         <input type="text" id="message">
         </input>
         <input type="submit" class="submit">
         </input>
       </form>
+      <button class="retrieve">Gotify
+      </button>
+      <div id="chats">
+      </div>
     </div>
   </body>
 </html>
