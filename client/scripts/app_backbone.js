@@ -1,40 +1,64 @@
 var App = Backbone.Model.extend({
   initialize: function(){
     this.set('currentRoom', 'All Rooms');
-    this.set('server', 'https://api.parse.com/1/classes/chatterbox');
     this.set('mostRecentMessageTime', new Date("0"));
-    this.set('firendsList', []);
+    this.set('friends', []);
   }
 });
 
 
-var AppView = Backbone.View.extend({
+var FormView = Backbone.View.extend({
+
+  events: {
+    "click .submit":"handleSubmit"
+  },
+
   initialize: function(){
-    this.readyMakeNewRoom();
-    this.readyEnterRoom();
+
   },
 
-  // listens for click event on room creation button
-  // invokes addRoom with the value in the newRoom textbox
-  readyMakeNewRoom: function(){
-    $("#newRoomButton").on('click', function(){
-      app.addRoom($('#newRoomText').val());
-      $('#newRoomText').val("");
-    });
-  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var username = $('#username').val();
+    var text = $('#message').val();
 
-  // sets the current room to the selected room
-  // and then fetches new messages
-  readyEnterRoom: function(){
-    $('#roomSelect').on("change", function(event){
-      app.currentRoom = this.value;
-      app.fetch();
-    });
+    console.log(username);
+    console.log(text);
+    // collection.create creates a new model in that collection.
+
+    this.collection.create({username: username, text: text});
+
+
   }
+
+  // // listens for click event on room creation button
+  // // invokes addRoom with the value in the newRoom textbox
+  // readyMakeNewRoom: function(){
+  //   $("#newRoomButton").on('click', function(){
+  //     app.addRoom($('#newRoomText').val());
+  //     $('#newRoomText').val("");
+  //   });
+  // },
+
+  // // sets the current room to the selected room
+  // // and then fetches new messages
+  // readyEnterRoom: function(){
+  //   $('#roomSelect').on("change", function(event){
+  //     app.currentRoom = this.value;
+  //     app.fetch();
+  //   });
+  // }
 });
 
 
 var Message = Backbone.Model.extend({
+
+  defaults: {
+    "username": "anonymous",
+    "roomname": "public",
+    "text": ""
+  },
+
   initialize: function(message){
     this.set('username', message.username);
     this.set('text', message.text);
@@ -46,12 +70,14 @@ var Message = Backbone.Model.extend({
 
 var MessageView = Backbone.View.extend({
 
+  template : _.template('<div class="username"><%- username %></div> \
+              <div class="text"><%- text %></div> \
+              <div class="roomname"><%- roomname %></div>'
+              ),
   render: function() {
-    var template = _.template('<div class="username"><%- username %></div> \
-                <div class="text"><%- text %></div> \
-                <div class="roomname"><%- roomname %></div>)');
+    // debugger;
 
-    this.$el.html(template(this.model.attributes));
+    this.$el.html(this.template(this.model.attributes));
 
     return this.$el;
   }
@@ -59,14 +85,24 @@ var MessageView = Backbone.View.extend({
 });
 
 var MessagesView = Backbone.View.extend({
+
   initialize: function() {
-    this.collection.on('sync', function() {
-      console.log("hey I synced");
-    });
-}
+    this.collection.on('sync', this.render, this);
+  },
+
+  render: function() {
+    this.collection.forEach(this.renderMessage, this)
+  },
+
+  renderMessage: function(message) {
+    var messageView = new MessageView({model: message});
+      this.$el.prepend(messageView.render());
+    }
 });
 
 var Messages = Backbone.Collection.extend({
+  model: Message,
+
   url: 'https://api.parse.com/1/classes/chatterbox',
 
   loadMessages: function() {
@@ -79,5 +115,5 @@ var Messages = Backbone.Collection.extend({
 
 });
 
-var app = new App();
-var appView = new AppView();
+// var app = new App();
+// var appView = new AppView();

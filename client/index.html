@@ -11,12 +11,7 @@
     <script src="scripts/regex.js"></script>
     <script src="env/config.js"></script>
     <script src="scripts/app_backbone.js"></script>
-    <script>
-    var app = new App();
-    var messages = new Messages({model: Message});
-    var messagesView = new MessagesView({collection: messages});
 
-    </script>
   </head>
   <body>
     <div id="main">
@@ -41,5 +36,13 @@
       <div id="chats">
       </div>
     </div>
+    <script>
+    // var app = new App();
+    var messages = new Messages();
+    messages.loadMessages();
+    var messagesView = new MessagesView({el: $('#chats'),collection: messages});
+    var formView = new FormView({collection: messages,  el: $('#main')});
+
+    </script>
   </body>
 </html>
